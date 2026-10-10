@@ -1,0 +1,32 @@
+name: Release Contract
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download NuGet package
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: nuget-package
+          path: artifacts
+
+      - name: Create release and upload package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" artifacts/*.nupkg --clobber
+          else
+            gh release create "$TAG" artifacts/*.nupkg \
+              --title "$TAG" \
+              --generate-notes
+          fi
