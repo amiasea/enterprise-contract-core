@@ -3,7 +3,7 @@ name: Contract CI/CD
 on:
   push:
     branches:
-      - development
+      - gamma-development
     tags:
       - "v*"
 
@@ -27,7 +27,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate SemVer tag and main ancestry
+      - name: Validate SemVer tag and gamma-main ancestry
         id: validate
         shell: bash
         run: |
@@ -38,20 +38,20 @@ jobs:
             exit 1
           fi
 
-          git fetch origin main
+          git fetch origin gamma-main
 
-          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
-            echo "::error::Tag '$TAG' does not point to a commit reachable from main."
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/gamma-main; then
+            echo "::error::Tag '$TAG' does not point to a commit reachable from gamma-main."
             exit 1
           fi
 
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
 
   build-development:
-    if: github.ref == 'refs/heads/development'
+    if: github.ref == 'refs/heads/gamma-development'
     uses: ./.github/workflows/build.yml
     with:
-      package-version: ${{ format('0.0.0-development.{0}', github.run_number) }}
+      package-version: ${{ format('0.0.0-gamma-development.{0}', github.run_number) }}
 
   build-release:
     if: startsWith(github.ref, 'refs/tags/') && needs.validate-tag.result == 'success'
