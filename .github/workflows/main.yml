@@ -48,10 +48,10 @@ jobs:
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
 
   build-development:
-    if: github.ref == 'refs/heads/development'
+    if: github.ref == 'refs/heads/gamma-development'
     uses: ./.github/workflows/build.yml
     with:
-      package-version: ${{ format('0.0.0-development.{0}', github.run_number) }}
+      package-version: ${{ format('0.0.0-gamma-development.{0}', github.run_number) }}
 
   build-release:
     if: startsWith(github.ref, 'refs/tags/') && needs.validate-tag.result == 'success'
