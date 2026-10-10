@@ -3,7 +3,7 @@ name: Contract CI/CD
 on:
   push:
     branches:
-      - development
+      - gamma-development
     tags:
       - "v*"
 
