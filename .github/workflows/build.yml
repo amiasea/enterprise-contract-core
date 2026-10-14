@@ -1,4 +1,4 @@
-name: Build Contract
+name: Build Contract Core
 
 on:
   workflow_call:
@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   build:
@@ -27,10 +28,19 @@ jobs:
           dotnet-version: 11.0.x
           dotnet-quality: preview
 
+      - name: Configure AWS credentials through OIDC
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: ${{ vars.ARTIFACT_RESTORE_ROLE_ARN }}
+          aws-region: us-east-1
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+
       - name: Locate solution
         id: solution
         shell: bash
         run: |
+          set -euo pipefail
+
           SOLUTION="$(find . -maxdepth 1 -type f -name '*.slnx' -print -quit)"
 
           if [[ -z "$SOLUTION" ]]; then
@@ -48,6 +58,8 @@ jobs:
 
       - name: Pack Contract.Core
         run: |
+          set -euo pipefail
+
           dotnet pack \
             src/Amiasea.Enterprise.Contract.Core/Amiasea.Enterprise.Contract.Core.csproj \
             --configuration Release \
